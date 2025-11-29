@@ -1,100 +1,70 @@
-import { useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
-import { GalleryView } from './galeria/GalleryView'
-import AccountView from './auth/AcountView'
-import CameraComponent from './galeria/components/CameraComponent'
-import { Session } from '@supabase/supabase-js'
-type Props = {
-  session: Session
-}
-export default function HomeView({ session }: Props) {
-  const [screen, setScreen] = useState<'home'| 'gallery' | 'profile'>('home')
+import { router } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity, View, ImageBackground } from "react-native";
 
-  const renderContent = () => {
-    switch (screen) {
-      case 'gallery':
-        return <GalleryView />
-      case 'profile':
-        return <AccountView session={session} />
-      default:
-        return (
-          <View style={styles.homeButtons}>
-
-            <TouchableOpacity style={styles.button} onPress={() => setScreen('gallery')}>
-              <Ionicons name="images-outline" size={24} color="white" />
-              <Text style={styles.buttonText}>Galería</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button} onPress={() => setScreen('profile')}>
-              <Ionicons name="person-outline" size={24} color="white" />
-              <Text style={styles.buttonText}>Perfil</Text>
-            </TouchableOpacity>
-          </View>
-        )
-    }
-  }
-
+export function HomeView() {
   return (
-    <View style={styles.container}>
-      {renderContent()}
 
+      <View style={styles.container}>
+        <Text style={styles.title}>App</Text>
 
-      {screen !== 'home' && (
-        <TouchableOpacity style={styles.cancelButton} onPress={() => setScreen('home')}>
-          <Ionicons name="close" size={28} color="white" />
-          <Text style={styles.cancelText}>Cancelar</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            router.push("/gallery");
+          }}
+        >
+          <Text style={styles.text}>Galeria</Text>
         </TouchableOpacity>
-      )}
-    </View>
-  )
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            router.push("/account");
+          }}
+        >
+          <Text style={styles.text}>Perfil</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            router.push("/notas");
+          }}
+        >
+          <Text style={styles.text}>Notas</Text>
+        </TouchableOpacity>
+      </View>
+  );
 }
 
 const styles = StyleSheet.create({
+
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  homeButtons: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 20,
+    marginTop: 60,
+    //flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+ 
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#007bff',
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    backgroundColor: "#f4e154",
+    borderRadius: 50,
+    //width: 250,
+    marginBottom: 12,
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    marginLeft: 8,
-    fontWeight: 'bold',
+  text: {
+    fontSize: 15,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#000",
   },
-  cancelButton: {
-    position: 'absolute',
-    bottom: 40,
-    flexDirection: 'row',
-    backgroundColor: 'red',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
+  title: {
+    fontSize: 30,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#ff00c8ff",
+    marginBottom: 30,
   },
-  cancelText: {
-    color: 'white',
-    fontSize: 16,
-    marginLeft: 6,
-    fontWeight: 'bold',
-  },
-})
+});

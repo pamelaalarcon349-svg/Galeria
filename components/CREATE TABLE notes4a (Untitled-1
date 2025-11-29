@@ -1,0 +1,9 @@
+create table notes4A(
+  id uuid not null primary key,
+  UserId uuid references auth.users not null,
+  title text,
+  description text,
+  date timestamp with time zone DEFAULT timezone('utc':: text, now()) NOT NULL
+
+
+);
