@@ -11,7 +11,7 @@ export default function IndexScreen() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // 1️⃣ Al abrir la app obtenemos la sesión actual
+    
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setLoading(false) // deja de cargar
@@ -22,7 +22,7 @@ export default function IndexScreen() {
     })
   }, [])
 
-  // 3️⃣ Mientras verificamos la sesión → loader
+  
   if (loading) {
     return <ActivityIndicator style={{ marginTop: 40 }} />
   }

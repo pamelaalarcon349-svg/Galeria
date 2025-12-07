@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   addButton: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#34ff01ff',
     padding: 14,
     borderRadius: 12,
     alignItems: 'center',

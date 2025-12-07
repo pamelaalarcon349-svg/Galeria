@@ -15,7 +15,8 @@ export default function CameraComponent({onCancel, onPictureTaked}: Props) {
   const cameraRef = useRef<CameraView>(null);
 
   if (!permission) {
-    // Camera permissions are still loading.
+    // Camera permissions are still loa
+    // ding.
     return <View />;
   }
 

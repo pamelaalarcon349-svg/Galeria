@@ -1,56 +1,105 @@
-// GalleryView.tsx
-// vista de galeria
-
-import { FlatList, Image, StyleSheet, View } from "react-native";
+//GaleryView.tsx
+//Vista para la galeria
+import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
+import { FlatList, Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ImageDelete } from "./components/ImageDelete";
 import { ImagePicker } from "./components/ImagePicker";
-import { useState } from "react";
-/**
- * Contiene:
- * - Botón para añadir imagen
- * - Galería de imágenes en un FlatList
- */
+
+
 export function GalleryView() {
-  // estado para las imágenes
-  const [images, setImages] = useState<string[]>([]);
+    //estado de la coleccion de imagenes
+    const [images, setImages] = useState<string[]>([]);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // agregar imagen nueva a la colección
-  const addPhoto = (uri: string) => {
-    setImages([uri, ...images]);
-  };
+    useEffect(() => {
+        async function loadImages(){
+            const { data, error } = await supabase.storage
+                .from("Imagen")
+                .list("public");
 
-  return (
-    <View style={styles.container}>
-      {/* botón para añadir imagen */}
-      <ImagePicker onPhotoSelected={addPhoto} />
+            if (error) {
+                console.error("Error al listar imágenes:", error.message);
+                return;
+            }
 
-      {/* mostrar fotos con FlatList */}
-      <FlatList
-        data={images}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={3} // para mostrar en formato de galería
-        contentContainerStyle={styles.gallery}
-        renderItem={({ item }) => (
-          <Image source={{ uri: item }} style={styles.image} />
-        )}
-      />
-    </View>
-  );
+            const urls = data.map((file) => {
+                const { data } = supabase.storage
+                    .from("Imagen")
+                    .getPublicUrl(`public/${file.name}`);
+                return data.publicUrl;
+            });
+
+            setImages(urls);
+        };
+
+        loadImages();
+    }, []);
+
+    //funcion para agregar una imagen a la coleccion
+    const addPhoto = (uri: string) => {
+        setImages([uri, ...images]);
+    }
+
+    const deleteImage = async (url: string) => {
+        try {
+            // obtener el path relativo del archivo a partir de la URL pública
+            const path = url.split("/").slice(-2).join("/"); 
+
+          const { error } = await supabase.storage
+                .from("Imagen")
+                .remove([path]);
+
+            if (error) {
+                console.error("Error al eliminar:", error.message);
+            } else {
+                console.log("Imagen eliminada:", path);
+                setImages(images.filter((img) => img !== url));
+                setSelectedImage(null); // cerrar modal
+            }
+        } catch (err) {
+            console.error("Error:", err);
+        }
+    };
+
+    return (
+        <View style={style.container}>
+            <ImagePicker
+                onPhotoSelected={addPhoto}
+            />
+            <FlatList
+                data={images}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => setSelectedImage(item)}>
+                        <Image source={{ uri: item }} style={style.image} />
+                    </TouchableOpacity>
+                )}
+                keyExtractor={(item, index) => item ?? index.toString()}
+            />
+
+            <ImageDelete
+                imageUrl={selectedImage}
+                onCancel={() => setSelectedImage(null)}
+                onDelete={deleteImage}
+            />
+
+        </View>
+    );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingTop: 60,
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  gallery: {
-    marginTop: 16,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    margin: 4,
-  },
-});
+const style = StyleSheet.create({
+    container: {
+        paddingTop: 60,
+        paddingHorizontal: 16,
+        flex: 1,
+        backgroundColor: '#f0f0f0',
+    },
+    image: {
+        width: '100%',
+        height: 200,
+        marginVertical: 8,
+        borderRadius: 8
+
+    }
+
+})

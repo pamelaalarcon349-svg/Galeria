@@ -11,8 +11,7 @@ export function HomeView() {
           style={styles.button}
           onPress={() => {
             router.push("/gallery");
-          }}
-        >
+          }} >
           <Text style={styles.text}>Galeria</Text>
         </TouchableOpacity>
 
@@ -20,8 +19,7 @@ export function HomeView() {
           style={styles.button}
           onPress={() => {
             router.push("/account");
-          }}
-        >
+          }}>
           <Text style={styles.text}>Perfil</Text>
         </TouchableOpacity>
 

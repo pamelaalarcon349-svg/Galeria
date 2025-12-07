@@ -16,18 +16,25 @@ export function NoteItem({ note, onEdit, onDelete }: Props) {
                 {note.date.toLocaleString()}
             </Text>
 
-            <Button
-                title="Editar"
-                onPress={() => onEdit(note)}
-            />
+            <View style={styles.row}>
+                <View style={styles.buttonContainer}>
+                    <Button
+                        title="Editar"
+                        onPress={() => onEdit(note)}
+                    />
+                </View>
 
-            <View style={{ height: 6 }} />
+                <View style={{ width: 10 }} />
 
-            <Button
-                title="Eliminar"
-                color="red"
-                onPress={() => onDelete(note.id)}
-            />
+                <View style={styles.buttonContainer}>
+                    <Button
+                        title="Eliminar"
+                        color="green"
+                        onPress={() => onDelete(note.id)}
+                    />
+                </View>
+            </View>
+
         </View>
     );
 }
@@ -50,5 +57,16 @@ const styles = StyleSheet.create({
         marginTop: 6,
         fontSize: 12,
         color: "#555"
+    },
+
+    row: {
+        flexDirection: "row",
+        marginTop: 10,
+        alignItems: "center",
+        justifyContent: "space-between"
+    },
+
+    buttonContainer: {
+        flex: 1
     }
 });

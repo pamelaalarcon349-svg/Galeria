@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { StyleSheet, View, Alert, TextInput, Text, TouchableOpacity } from 'react-native'
 import { Session } from '@supabase/supabase-js'
+import Avatar from './AvatarView'
 
 export default function AccountView({ session }: { session: Session }) {
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState('')
   const [website, setWebsite] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState<string | null>('')
 
   useEffect(() => {
     if (session) getProfile()
@@ -21,11 +22,10 @@ export default function AccountView({ session }: { session: Session }) {
       const { data, error, status } = await supabase
         .from('profiles')
         .select(`username, website, avatar_url`)
-        .eq('id', session?.user.id)
+        .eq('id', session.user.id)
         .single()
-      if (error && status !== 406) {
-        throw error
-      }
+
+      if (error && status !== 406) throw error
 
       if (data) {
         setUsername(data.username)
@@ -33,9 +33,7 @@ export default function AccountView({ session }: { session: Session }) {
         setAvatarUrl(data.avatar_url)
       }
     } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message)
-      }
+      if (error instanceof Error) Alert.alert(error.message)
     } finally {
       setLoading(false)
     }
@@ -48,14 +46,14 @@ export default function AccountView({ session }: { session: Session }) {
   }: {
     username: string
     website: string
-    avatar_url: string
+    avatar_url: string | null
   }) {
     try {
       setLoading(true)
       if (!session?.user) throw new Error('No user on the session!')
 
       const updates = {
-        id: session?.user.id,
+        id: session.user.id,
         username,
         website,
         avatar_url,
@@ -63,14 +61,9 @@ export default function AccountView({ session }: { session: Session }) {
       }
 
       const { error } = await supabase.from('profiles').upsert(updates)
-
-      if (error) {
-        throw error
-      }
+      if (error) throw error
     } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message)
-      }
+      if (error instanceof Error) Alert.alert(error.message)
     } finally {
       setLoading(false)
     }
@@ -78,12 +71,25 @@ export default function AccountView({ session }: { session: Session }) {
 
   return (
     <View style={styles.container}>
-      
+      {/* AVATAR */}
+      <View style={styles.verticallySpaced}>
+        <Avatar
+          size={150}
+          url={avatarUrl}
+          onUpload={(url: string) => {
+            setAvatarUrl(url)
+            updateProfile({ username, website, avatar_url: url })
+          }}
+        />
+      </View>
+
+      {/* EMAIL */}
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Text>Email</Text>
         <TextInput value={session?.user?.email} editable={false} style={styles.input} />
       </View>
 
+      {/* USERNAME */}
       <View style={styles.verticallySpaced}>
         <Text>Username</Text>
         <TextInput
@@ -93,6 +99,7 @@ export default function AccountView({ session }: { session: Session }) {
         />
       </View>
 
+      {/* WEBSITE */}
       <View style={styles.verticallySpaced}>
         <Text>Website</Text>
         <TextInput
@@ -102,16 +109,18 @@ export default function AccountView({ session }: { session: Session }) {
         />
       </View>
 
+      {/* UPDATE PROFILE BUTTON */}
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <TouchableOpacity
           onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })}
           disabled={loading}
           style={styles.button}
         >
-          <Text style={styles.buttonText}>{loading ? 'Loading ...' : 'Update'}</Text>
+          <Text style={styles.buttonText}>{loading ? 'Loading...' : 'Update'}</Text>
         </TouchableOpacity>
       </View>
 
+      {/* SIGN OUT */}
       <View style={styles.verticallySpaced}>
         <TouchableOpacity onPress={() => supabase.auth.signOut()} style={styles.button}>
           <Text style={styles.buttonText}>Sign Out</Text>
@@ -130,6 +139,7 @@ const styles = StyleSheet.create({
     paddingTop: 4,
     paddingBottom: 4,
     alignSelf: 'stretch',
+    alignItems: 'center',
   },
   mt20: {
     marginTop: 20,

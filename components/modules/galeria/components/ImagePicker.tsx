@@ -112,6 +112,7 @@ export function ImagePicker({onPhotoSelected}: Props){
                 />
              ): null}
         </Modal>
+        
         </>
     );
 } 
